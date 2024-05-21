@@ -4,7 +4,7 @@ import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-
+  app.setGlobalPrefix('api');
   const config = new DocumentBuilder()
     .setTitle('Youtube Music')
     .setDescription('The Youtube Music API description')
