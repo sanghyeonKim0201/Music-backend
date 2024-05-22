@@ -1,4 +1,3 @@
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -8,45 +7,56 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model user{
-  id Int @id @default(autoincrement())
-  email String @unique
-  password String
-  name String
-  play_list play_list[]
+model user {
+  id         String      @id
+  email      String      @unique
+  first_name String
+  last_name  String
+  picture    String?     @db.Text
+  play_list  play_list[]
 }
 
-model play_list{
-  id Int @id @default(autoincrement())
-  name String
-  user user @relation(fields: [user_id], references: [id])
-  user_id Int
+model play_list {
+  id             Int              @id @default(autoincrement())
+  name           String
+  user_id        String
+  user           user             @relation(fields: [user_id], references: [id])
   play_list_data play_list_item[]
+
+  @@index([user_id], map: "play_list_user_id_fkey")
 }
-model music{
-  id Int @id @default(autoincrement())
-  name String
+
+model music {
+  id             Int              @id @default(autoincrement())
+  name           String
   music_category music_category[]
   play_list_data play_list_item[]
 }
 
-model category{
-  id Int @id @default(autoincrement())
-  name String
+model category {
+  id             Int              @id @default(autoincrement())
+  name           String
   music_category music_category[]
 }
 
-model music_category{
-  id Int @id @default(autoincrement())
-  music_id Int
+model music_category {
+  id          Int      @id @default(autoincrement())
+  music_id    Int
   category_id Int
-  music music @relation(fields: [music_id], references: [id])
-  category category @relation(fields: [category_id], references: [id])
+  category    category @relation(fields: [category_id], references: [id])
+  music       music    @relation(fields: [music_id], references: [id])
+
+  @@index([category_id], map: "music_category_category_id_fkey")
+  @@index([music_id], map: "music_category_music_id_fkey")
 }
-model play_list_item{
-  id Int @id @default(autoincrement())
+
+model play_list_item {
+  id           Int       @id @default(autoincrement())
   play_list_id Int
-  music_id Int
-  music music @relation(fields: [music_id], references: [id])
-  play_list play_list @relation(fields: [play_list_id], references: [id])
+  music_id     Int
+  music        music     @relation(fields: [music_id], references: [id])
+  play_list    play_list @relation(fields: [play_list_id], references: [id])
+
+  @@index([music_id], map: "play_list_item_music_id_fkey")
+  @@index([play_list_id], map: "play_list_item_play_list_id_fkey")
 }

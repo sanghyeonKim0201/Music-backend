@@ -10,14 +10,15 @@ export class GoogleStrategy extends PassportStrategy(Strategy) {
       clientSecret: configService.get<string>('GOOGLE_CLIENT_SECRET'),
       callbackURL: 'http://localhost:8080/api/auth/google/redirect',
       scope: ['email', 'profile'],
+      accessType: 'offline',
+      prompt: 'consent',
     });
   }
   async validate(accessToken: string, refreshToken: string, profile: Profile) {
     const { id, name, emails, photos } = profile;
 
     const user = {
-      provider: 'google',
-      providerId: id,
+      id,
       firstName: name.givenName,
       lastName: name.familyName,
       email: emails[0].value,
@@ -25,7 +26,6 @@ export class GoogleStrategy extends PassportStrategy(Strategy) {
       accessToken,
       refreshToken,
     };
-    // console.log(user);
 
     return user;
   }
