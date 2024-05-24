@@ -1,10 +1,10 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy, Profile } from 'passport-google-oauth20';
 @Injectable()
 export class GoogleStrategy extends PassportStrategy(Strategy) {
-  constructor(@Inject(ConfigService) private configService: ConfigService) {
+  constructor(private configService: ConfigService) {
     super({
       clientID: configService.get<string>('GOOGLE_CLIENT_ID'),
       clientSecret: configService.get<string>('GOOGLE_CLIENT_SECRET'),
@@ -17,16 +17,17 @@ export class GoogleStrategy extends PassportStrategy(Strategy) {
   async validate(accessToken: string, refreshToken: string, profile: Profile) {
     const { id, name, emails, photos } = profile;
 
-    const user = {
+    const info = {
       id,
-      firstName: name.givenName,
-      lastName: name.familyName,
+      first_name: name.givenName,
+      last_name: name.familyName,
       email: emails[0].value,
       picture: photos[0].value,
+    };
+    const token = {
       accessToken,
       refreshToken,
     };
-
-    return user;
+    return { info, token };
   }
 }

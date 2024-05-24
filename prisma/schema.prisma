@@ -14,6 +14,7 @@ model user {
   last_name  String
   picture    String?     @db.Text
   play_list  play_list[]
+  token      token?
 }
 
 model play_list {
@@ -59,4 +60,11 @@ model play_list_item {
 
   @@index([music_id], map: "play_list_item_music_id_fkey")
   @@index([play_list_id], map: "play_list_item_play_list_id_fkey")
+}
+
+model token {
+  id            Int     @id @default(autoincrement())
+  user_id       String  @unique
+  refresh_token String? @db.MediumText
+  user          user    @relation(fields: [user_id], references: [id])
 }

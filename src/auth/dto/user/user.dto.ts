@@ -1,7 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { user } from '@prisma/client';
 
-export class CreateUserDTO {
+export class UserDTO {
   @ApiProperty({
     description: 'google ID',
     example: '10201054010',
@@ -14,20 +13,18 @@ export class CreateUserDTO {
   })
   readonly email: string;
 
-  @ApiProperty()
+  @ApiProperty({
+    description: '성',
+    example: '김',
+  })
   readonly first_name: string;
 
-  @ApiProperty()
+  @ApiProperty({
+    description: '이름',
+    example: '상현',
+  })
   readonly last_name: string;
 
-  @ApiProperty()
+  @ApiProperty({ description: 'url', example: 'https://~~~~~~~~~~~~' })
   readonly picture?: string;
-
-  constructor(user: user) {
-    this.email = user.email;
-    this.first_name = user.first_name;
-    this.id = user.id;
-    this.last_name = user.last_name;
-    this.picture = user.picture;
-  }
 }

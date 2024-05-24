@@ -1,21 +1,56 @@
+import { Request, Response } from 'express';
 import { Controller, Get, Req, Res, UseGuards } from '@nestjs/common';
-import { GoogleAuthGuard } from './utils/Guards';
 import { AuthService } from './auth.service';
+import { AuthGuard } from '@nestjs/passport';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
 @Controller('auth')
+@ApiTags('Auth API')
 export class AuthController {
   constructor(private authService: AuthService) {}
   @Get('google/login')
-  @UseGuards(GoogleAuthGuard)
+  @ApiOperation({ summary: 'google login api' })
+  @UseGuards(AuthGuard('google'))
   handleLogin() {
     return { msg: 'hello' };
   }
   @Get('google/redirect')
-  @UseGuards(GoogleAuthGuard)
-  async handleRedirect(@Req() req, @Res() res) {
-    const { id } = req.user;
-    const user = await this.authService.findById(id);
-    console.log(user);
+  @ApiOperation({ summary: 'redirect API' })
+  @UseGuards(AuthGuard('google'))
+  async handleRedirect(@Req() req: Request, @Res() res: Response) {
+    //@ts-expect-error type에러
+    const { id } = req.user.info;
+
+    //@ts-expect-error type에러
+    await this.authService.validateUser(req.user.info);
+    //@ts-expect-error type에러
+    const accessToken = this.authService.generateAccessToken(req.user.info);
+    const refreshToken = await this.authService.generateRefreshToken(id);
+    //app 일 경우
+    // res.setHeader('Authorization', 'Bearer ' + [accessToken, refreshToken]);
+    res.cookie('accessToken', accessToken, { httpOnly: true });
+    res.cookie('refreshToken', refreshToken, { httpOnly: true });
     res.redirect('http://localhost:3000/');
+  }
+  @Get('/refresh')
+  @ApiOperation({ summary: 'accessToken refresh' })
+  async refresh(@Req() req: Request, @Res() res: Response) {
+    try {
+      const newAccessToken = await this.authService.refrehsValidate(
+        req.cookies.refreshToken,
+      );
+      res.cookie('accessToken', newAccessToken, { httpOnly: true });
+    } catch (e) {
+      console.log(e);
+      // await this.logout(req, res);
+    }
+  }
+  @Get('google/logout')
+  @ApiOperation({ summary: 'google logout API' })
+  async logout(@Req() req: Request, @Res() res: Response) {
+    await this.authService.logout(req.cookies.refreshToken);
+    res.clearCookie('accessToken');
+    res.clearCookie('refreshToken');
+    res.redirect('https://accounts.google.com/logout');
   }
 }
