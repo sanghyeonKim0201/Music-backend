@@ -4,6 +4,7 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
 import { UserDTO } from './dto/user/user.dto';
+import { AccessTokenDTO } from './dto/token/access-token.dto';
 @Injectable()
 export class AuthService {
   constructor(
@@ -12,20 +13,21 @@ export class AuthService {
     private configService: ConfigService,
   ) {}
 
-  async validateUser(user: UserDTO): Promise<boolean> {
+  async validateUser(user: AccessTokenDTO): Promise<boolean> {
     const result = await this.authRepository.findById(user.id);
     // 유저에 관한 검증 로직 추가 할 거 있으면 여기다가
     if (!result) {
+      delete user.accessToken;
       await this.authRepository.createUser(user);
     }
     return true;
   }
-  generateAccessToken(user: UserDTO): string {
-    const payload = user;
+  generateAccessToken(accessTokenDTO: AccessTokenDTO): string {
+    const payload = accessTokenDTO;
     return this.jwtService.sign(payload);
   }
-  async generateRefreshToken(userId: string): Promise<string> {
-    const payload = { userId };
+  async generateRefreshToken(accessTokenDTO: AccessTokenDTO): Promise<string> {
+    const payload = { userId: accessTokenDTO.id };
     const refreshToken = this.jwtService.sign(payload, {
       secret: this.configService.get<string>('JWT_REFRESH_SECRET_KEY'),
       expiresIn: this.configService.get<string>('JWT_REFRESH_EXPIRES_IN'),
@@ -34,7 +36,11 @@ export class AuthService {
     const saltRounds = 10;
     const currentRefreshToken = await bcrypt.hash(refreshToken, saltRounds);
 
-    await this.authRepository.upsertToken(payload.userId, currentRefreshToken);
+    await this.authRepository.upsertToken({
+      user_id: payload.userId,
+      refresh_token: currentRefreshToken,
+      access_token: accessTokenDTO.accessToken,
+    });
 
     return refreshToken;
   }
@@ -52,7 +58,10 @@ export class AuthService {
       throw new UnauthorizedException('refresh token error');
     }
     const payload: UserDTO = await this.authRepository.findById(userId);
-    const accessToken = this.generateAccessToken(payload);
+    const accessToken = this.generateAccessToken({
+      ...payload,
+      accessToken: token.access_token,
+    });
     return accessToken;
   }
   async logout(refreshToken: string) {

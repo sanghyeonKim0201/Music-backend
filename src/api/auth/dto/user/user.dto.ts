@@ -26,5 +26,5 @@ export class UserDTO {
   readonly last_name: string;
 
   @ApiProperty({ description: 'url', example: 'https://~~~~~~~~~~~~' })
-  readonly picture?: string;
+  readonly picture: string;
 }

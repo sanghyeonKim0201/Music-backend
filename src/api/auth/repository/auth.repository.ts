@@ -30,17 +30,15 @@ export class AuthRepository {
     });
     return token;
   }
-  async upsertToken(userId: string, refreshToken: string) {
+  async upsertToken(tokenDTO: CreateTokenDTO) {
     await this.prisma.token.upsert({
-      create: {
-        user_id: userId,
-        refresh_token: refreshToken,
-      },
+      create: tokenDTO,
       update: {
-        refresh_token: refreshToken,
+        refresh_token: tokenDTO.refresh_token,
+        access_token: tokenDTO.access_token,
       },
       where: {
-        user_id: userId,
+        user_id: tokenDTO.user_id,
       },
     });
   }
@@ -62,7 +60,8 @@ export class AuthRepository {
   async deleteToken(userId: string) {
     await this.prisma.token.update({
       data: {
-        refresh_token: null,
+        refresh_token: '',
+        access_token: '',
       },
       where: {
         user_id: userId,

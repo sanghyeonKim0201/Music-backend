@@ -23,7 +23,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy) {
       last_name: name.familyName,
       email: emails[0].value,
       picture: photos[0].value,
-      token: accessToken,
+      accessToken: accessToken,
     };
     const token = {
       accessToken,

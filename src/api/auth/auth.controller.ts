@@ -18,13 +18,13 @@ export class AuthController {
   @UseGuards(AuthGuard('google'))
   async handleRedirect(@Req() req: Request, @Res() res: Response) {
     //@ts-expect-error type에러
-    const { id } = req.user.info;
-
-    //@ts-expect-error type에러
     await this.authService.validateUser(req.user.info);
     //@ts-expect-error type에러
     const accessToken = this.authService.generateAccessToken(req.user.info);
-    const refreshToken = await this.authService.generateRefreshToken(id);
+    const refreshToken = await this.authService.generateRefreshToken(
+      //@ts-expect-error type에러
+      req.user.info,
+    );
     //app 일 경우
     // res.setHeader('Authorization', 'Bearer ' + [accessToken, refreshToken]);
     res.cookie('accessToken', accessToken, { httpOnly: true });
