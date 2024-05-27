@@ -25,7 +25,6 @@ export class GoogleStrategy extends PassportStrategy(Strategy) {
       picture: photos[0].value,
       token: accessToken,
     };
-    console.log(accessToken);
     const token = {
       accessToken,
       refreshToken,

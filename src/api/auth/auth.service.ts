@@ -39,36 +39,28 @@ export class AuthService {
     return refreshToken;
   }
   async refrehsValidate(refreshToken: string): Promise<string> {
-    try {
-      const verifyToken = this.jwtService.verify(refreshToken, {
-        secret: this.configService.get('JWT_REFRESH_SECRET_KEY'),
-      });
+    const verifyToken = this.jwtService.verify(refreshToken, {
+      secret: this.configService.get('JWT_REFRESH_SECRET_KEY'),
+    });
 
-      const userId = verifyToken.userId;
+    const userId = verifyToken.userId;
 
-      const token = await this.authRepository.findTokenByUserId(userId);
+    const token = await this.authRepository.findTokenByUserId(userId);
 
-      const compare = await bcrypt.compare(refreshToken, token.refresh_token);
-      if (!compare) {
-        throw new UnauthorizedException('refresh token error');
-      }
-      const payload: UserDTO = await this.authRepository.findById(userId);
-      const accessToken = this.generateAccessToken(payload);
-      return accessToken;
-    } catch {
+    const compare = await bcrypt.compare(refreshToken, token.refresh_token);
+    if (!compare) {
       throw new UnauthorizedException('refresh token error');
     }
+    const payload: UserDTO = await this.authRepository.findById(userId);
+    const accessToken = this.generateAccessToken(payload);
+    return accessToken;
   }
   async logout(refreshToken: string) {
-    try {
-      const verifyToken = this.jwtService.verify(refreshToken, {
-        secret: this.configService.get('JWT_REFRESH_SECRET_KEY'),
-      });
-      const userId = verifyToken.userId;
+    const verifyToken = this.jwtService.verify(refreshToken, {
+      secret: this.configService.get('JWT_REFRESH_SECRET_KEY'),
+    });
+    const userId = verifyToken.userId;
 
-      await this.authRepository.deleteToken(userId);
-    } catch (e) {
-      throw new UnauthorizedException(e);
-    }
+    await this.authRepository.deleteToken(userId);
   }
 }

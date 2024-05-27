@@ -18,75 +18,55 @@ export class AuthRepository {
     return user;
   }
   async createUser(createUserDTO: CreateUserDTO): Promise<void> {
-    try {
-      await this.prisma.user.create({
-        data: createUserDTO,
-      });
-    } catch (e) {
-      throw new Error('유저 생성에 실패하였습니다.' + e);
-    }
+    await this.prisma.user.create({
+      data: createUserDTO,
+    });
   }
   async findTokenByUserId(userId: string): Promise<token> {
-    try {
-      const token = await this.prisma.token.findFirst({
-        where: {
-          user_id: userId,
-        },
-      });
-      return token;
-    } catch (e) {
-      throw new Error('token 조회를 실패하였습니다.' + e);
-    }
+    const token = await this.prisma.token.findFirst({
+      where: {
+        user_id: userId,
+      },
+    });
+    return token;
   }
   async upsertToken(userId: string, refreshToken: string) {
-    try {
-      await this.prisma.token.upsert({
-        create: {
-          user_id: userId,
-          refresh_token: refreshToken,
-        },
-        update: {
-          refresh_token: refreshToken,
-        },
-        where: {
-          user_id: userId,
-        },
-      });
-    } catch (e) {
-      throw new Error('토큰 갱신에 실패하였습니다.');
-    }
+    await this.prisma.token.upsert({
+      create: {
+        user_id: userId,
+        refresh_token: refreshToken,
+      },
+      update: {
+        refresh_token: refreshToken,
+      },
+      where: {
+        user_id: userId,
+      },
+    });
   }
   async createToken(createTokenDTO: CreateTokenDTO): Promise<void> {
-    try {
-      await this.prisma.token.create({
-        data: createTokenDTO,
-      });
-    } catch (e) {
-      throw new Error('token 생성에 실패하였습니다.');
-    }
+    await this.prisma.token.create({
+      data: createTokenDTO,
+    });
   }
   async updateToken(updateTokenDTO: UpdateTokenDTO): Promise<void> {
-    try {
-      await this.prisma.token.update({
-        data: {
-          refresh_token: updateTokenDTO.refresh_token,
-        },
-        where: {
-          user_id: updateTokenDTO.user_id,
-        },
-      });
-    } catch (e) {}
+    await this.prisma.token.update({
+      data: {
+        refresh_token: updateTokenDTO.refresh_token,
+      },
+      where: {
+        user_id: updateTokenDTO.user_id,
+      },
+    });
   }
   async deleteToken(userId: string) {
-    try {
-      await this.prisma.token.update({
-        data: {
-          refresh_token: null,
-        },
-        where: {
-          user_id: userId,
-        },
-      });
-    } catch (e) {}
+    await this.prisma.token.update({
+      data: {
+        refresh_token: null,
+      },
+      where: {
+        user_id: userId,
+      },
+    });
   }
 }
