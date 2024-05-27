@@ -13,8 +13,6 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const request = context.getRequest<Request>();
     const response = context.getResponse<Response>();
     const status = exception.getStatus();
-    console.log(request.url);
-    console.log(status);
 
     response.status(status).json({
       statusCode: status,
