@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './api/auth/auth.module';
 import { PrismaModule } from './api/prisma/prisma.module';
-import { HomeModule } from './api/home/home.module';
+import { PlaylistModule } from './api/playlist/playlist.module';
 
 @Module({
   imports: [
@@ -11,7 +11,7 @@ import { HomeModule } from './api/home/home.module';
     }),
     AuthModule,
     PrismaModule,
-    HomeModule,
+    PlaylistModule,
   ],
   controllers: [],
   providers: [],

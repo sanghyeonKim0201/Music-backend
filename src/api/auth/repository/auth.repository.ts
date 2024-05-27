@@ -1,25 +1,21 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/api/prisma/prisma.service';
-import { CreateUserDTO } from './dto/user/create-user.dto';
+import { CreateUserDTO } from '../dto/user/create-user.dto';
 import { token, user } from '@prisma/client';
-import { CreateTokenDTO } from './dto/token/create-token.dto';
-import { UpdateTokenDTO } from './dto/token/update-token.dto';
+import { CreateTokenDTO } from '../dto/token/create-token.dto';
+import { UpdateTokenDTO } from '../dto/token/update-token.dto';
 
 @Injectable()
 export class AuthRepository {
   constructor(private prisma: PrismaService) {}
 
   async findById(userId: string): Promise<user> {
-    try {
-      const user = await this.prisma.user.findFirst({
-        where: {
-          id: userId,
-        },
-      });
-      return user;
-    } catch (e) {
-      throw new Error('유저 ID 조회를 실패하였습니다');
-    }
+    const user = await this.prisma.user.findFirst({
+      where: {
+        id: userId,
+      },
+    });
+    return user;
   }
   async createUser(createUserDTO: CreateUserDTO): Promise<void> {
     try {

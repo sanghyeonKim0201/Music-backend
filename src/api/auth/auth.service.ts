@@ -1,4 +1,4 @@
-import { AuthRepository } from './auth.repository';
+import { AuthRepository } from './repository/auth.repository';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
