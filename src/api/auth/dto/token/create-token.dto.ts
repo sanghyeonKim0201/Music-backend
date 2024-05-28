@@ -9,5 +9,4 @@ export class CreateTokenDTO {
     example: 'WDQWQWFFRGRG235234ASFGEWRG=',
   })
   readonly refresh_token: string;
-  readonly access_token: string;
 }

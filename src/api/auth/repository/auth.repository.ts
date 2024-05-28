@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/api/prisma/prisma.service';
 import { CreateUserDTO } from '../dto/user/create-user.dto';
-import { token, user } from '@prisma/client';
+import { jwt_token, user } from '@prisma/client';
 import { CreateTokenDTO } from '../dto/token/create-token.dto';
 import { UpdateTokenDTO } from '../dto/token/update-token.dto';
 
@@ -22,8 +22,8 @@ export class AuthRepository {
       data: createUserDTO,
     });
   }
-  async findTokenByUserId(userId: string): Promise<token> {
-    const token = await this.prisma.token.findFirst({
+  async findTokenByUserId(userId: string): Promise<jwt_token> {
+    const token = await this.prisma.jwt_token.findFirst({
       where: {
         user_id: userId,
       },
@@ -31,24 +31,67 @@ export class AuthRepository {
     return token;
   }
   async upsertToken(tokenDTO: CreateTokenDTO) {
-    await this.prisma.token.upsert({
+    await this.prisma.jwt_token.upsert({
       create: tokenDTO,
       update: {
         refresh_token: tokenDTO.refresh_token,
-        access_token: tokenDTO.access_token,
       },
       where: {
         user_id: tokenDTO.user_id,
       },
     });
   }
+  async updateGoogle(payload: {
+    userId: string;
+    accessToken?: string;
+    refreshToken?: string;
+  }) {
+    const { userId, accessToken, refreshToken } = payload;
+
+    const data: { access_token?: string; refresh_token?: string } = {};
+    if (accessToken) data.access_token = accessToken;
+    if (refreshToken) data.refresh_token = refreshToken;
+    if (Object.keys(data).length > 0) {
+      await this.prisma.google_token.update({
+        data,
+        where: {
+          user_id: userId,
+        },
+      });
+    }
+  }
+  async upsertGoogle(payload: {
+    userId: string;
+    accessToken?: string;
+    refreshToken?: string;
+  }) {
+    const { userId, accessToken, refreshToken } = payload;
+
+    const data: { access_token?: string; refresh_token?: string } = {};
+    if (accessToken) data.access_token = accessToken;
+    if (refreshToken) data.refresh_token = refreshToken;
+
+    if (Object.keys(data).length > 0) {
+      await this.prisma.google_token.upsert({
+        update: data,
+        create: {
+          user_id: userId,
+          access_token: accessToken ?? '',
+          refresh_token: refreshToken ?? '',
+        },
+        where: {
+          user_id: userId,
+        },
+      });
+    }
+  }
   async createToken(createTokenDTO: CreateTokenDTO): Promise<void> {
-    await this.prisma.token.create({
+    await this.prisma.jwt_token.create({
       data: createTokenDTO,
     });
   }
   async updateToken(updateTokenDTO: UpdateTokenDTO): Promise<void> {
-    await this.prisma.token.update({
+    await this.prisma.jwt_token.update({
       data: {
         refresh_token: updateTokenDTO.refresh_token,
       },
@@ -58,9 +101,18 @@ export class AuthRepository {
     });
   }
   async deleteToken(userId: string) {
-    await this.prisma.token.update({
+    await this.prisma.jwt_token.update({
       data: {
         refresh_token: '',
+      },
+      where: {
+        user_id: userId,
+      },
+    });
+  }
+  async deleteGoogleToken(userId: string) {
+    await this.prisma.google_token.update({
+      data: {
         access_token: '',
       },
       where: {

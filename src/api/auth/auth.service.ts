@@ -3,7 +3,6 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
-import { UserDTO } from './dto/user/user.dto';
 import { AccessTokenDTO } from './dto/token/access-token.dto';
 @Injectable()
 export class AuthService {
@@ -13,23 +12,21 @@ export class AuthService {
     private configService: ConfigService,
   ) {}
 
-  async validateUser(
-    user: AccessTokenDTO,
-    refreshToken: string | undefined,
-  ): Promise<boolean> {
+  async validateUser(user: AccessTokenDTO): Promise<boolean> {
     const result = await this.authRepository.findById(user.id);
     // 유저에 관한 검증 로직 추가 할 거 있으면 여기다가
-    if (refreshToken) {
-      await this.authRepository.updateToken({
-        user_id: '0',
-        refresh_token: refreshToken,
-      });
-    }
+
     if (!result) {
-      delete user.accessToken;
       await this.authRepository.createUser(user);
     }
     return true;
+  }
+  async saveGoogleToken(payload: {
+    userId: string;
+    accessToken: string;
+    refreshToken: string;
+  }) {
+    await this.authRepository.upsertGoogle(payload);
   }
   generateAccessToken(accessTokenDTO: AccessTokenDTO): string {
     const payload = accessTokenDTO;
@@ -48,7 +45,6 @@ export class AuthService {
     await this.authRepository.upsertToken({
       user_id: payload.userId,
       refresh_token: currentRefreshToken,
-      access_token: accessTokenDTO.accessToken,
     });
 
     return refreshToken;
@@ -66,11 +62,8 @@ export class AuthService {
     if (!compare) {
       throw new UnauthorizedException('refresh token error');
     }
-    const payload: UserDTO = await this.authRepository.findById(userId);
-    const accessToken = this.generateAccessToken({
-      ...payload,
-      accessToken: token.access_token,
-    });
+    const payload = await this.authRepository.findById(userId);
+    const accessToken = this.generateAccessToken(payload);
     return accessToken;
   }
   async logout(refreshToken: string) {
@@ -78,7 +71,7 @@ export class AuthService {
       secret: this.configService.get('JWT_REFRESH_SECRET_KEY'),
     });
     const userId = verifyToken.userId;
-
+    await this.authRepository.deleteGoogleToken(userId);
     await this.authRepository.deleteToken(userId);
   }
 }

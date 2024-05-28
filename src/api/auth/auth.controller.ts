@@ -1,4 +1,3 @@
-import { token } from '@prisma/client';
 import { Request, Response } from 'express';
 import { Controller, Get, Req, Res, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
@@ -21,10 +20,7 @@ export class AuthController {
     await this.authService.validateUser(
       //@ts-expect-error type에러
       req.user.info,
-      //@ts-expect-error type에러
-      req.user.token.refreshToken,
     );
-    console.log(req.user);
     //@ts-expect-error type에러
     const accessToken = this.authService.generateAccessToken(req.user.info);
     const refreshToken = await this.authService.generateRefreshToken(
@@ -33,6 +29,12 @@ export class AuthController {
     );
     //app 일 경우
     // res.setHeader('Authorization', 'Bearer ' + [accessToken, refreshToken]);
+    await this.authService.saveGoogleToken({
+      //@ts-expect-error type에러
+      userId: req.user.info.id,
+      //@ts-expect-error type에러
+      ...req.user.token,
+    });
     res.cookie('accessToken', accessToken, { httpOnly: true });
     res.cookie('refreshToken', refreshToken, { httpOnly: true });
     res.redirect('http://localhost:3000/');

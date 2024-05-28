@@ -24,6 +24,8 @@ export class GoogleStrategy extends PassportStrategy(Strategy) {
   authorizationParams(): { [key: string]: string } {
     return {
       access_type: 'offline',
+      prompt: 'consent',
+      response_type: 'code',
     };
   }
 
@@ -36,13 +38,15 @@ export class GoogleStrategy extends PassportStrategy(Strategy) {
       last_name: name.familyName,
       email: emails[0].value,
       picture: photos[0].value,
-      accessToken: accessToken,
     };
-    const token = {
+
+    const token: { accessToken: string; refreshToken?: string } = {
       accessToken,
-      refreshToken,
     };
-    console.log(refreshToken);
+    if (refreshToken) {
+      token.refreshToken = refreshToken;
+    }
+    console.log(token);
     return { info, token };
   }
 }
