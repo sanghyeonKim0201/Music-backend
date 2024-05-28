@@ -1,3 +1,4 @@
+import { token } from '@prisma/client';
 import { Request, Response } from 'express';
 import { Controller, Get, Req, Res, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
@@ -17,8 +18,13 @@ export class AuthController {
   @ApiOperation({ summary: 'redirect API' })
   @UseGuards(AuthGuard('google'))
   async handleRedirect(@Req() req: Request, @Res() res: Response) {
-    //@ts-expect-error type에러
-    await this.authService.validateUser(req.user.info);
+    await this.authService.validateUser(
+      //@ts-expect-error type에러
+      req.user.info,
+      //@ts-expect-error type에러
+      req.user.token.refreshToken,
+    );
+    console.log(req.user);
     //@ts-expect-error type에러
     const accessToken = this.authService.generateAccessToken(req.user.info);
     const refreshToken = await this.authService.generateRefreshToken(

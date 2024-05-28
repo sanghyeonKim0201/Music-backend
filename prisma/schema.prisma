@@ -63,8 +63,7 @@ model play_list_item {
 }
 
 model token {
-  id            Int    @id @default(autoincrement())
-  user_id       String @unique
+  user_id       String @id @unique
   refresh_token String @db.MediumText
   access_token  String @db.MediumText
   user          user   @relation(fields: [user_id], references: [id])

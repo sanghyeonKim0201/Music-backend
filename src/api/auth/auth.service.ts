@@ -13,9 +13,18 @@ export class AuthService {
     private configService: ConfigService,
   ) {}
 
-  async validateUser(user: AccessTokenDTO): Promise<boolean> {
+  async validateUser(
+    user: AccessTokenDTO,
+    refreshToken: string | undefined,
+  ): Promise<boolean> {
     const result = await this.authRepository.findById(user.id);
     // 유저에 관한 검증 로직 추가 할 거 있으면 여기다가
+    if (refreshToken) {
+      await this.authRepository.updateToken({
+        user_id: '0',
+        refresh_token: refreshToken,
+      });
+    }
     if (!result) {
       delete user.accessToken;
       await this.authRepository.createUser(user);

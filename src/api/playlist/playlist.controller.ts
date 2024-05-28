@@ -1,8 +1,9 @@
-import { Controller, Get, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, UseGuards } from '@nestjs/common';
 import { PlaylistService } from './playlist.service';
-import { JwtAccessAuthGuard } from 'src/utils/guard/jwtAccessAuthGuard';
-import { Request } from 'express';
+import { JwtAccessAuthGuard } from 'src/common/utils/guard/jwtAccessAuthGuard';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Payload } from 'src/common/utils/decorator/payload.decorator';
+import { PayloadDTO } from 'src/common/models/payload.dto';
 
 @Controller('playlist')
 @UseGuards(JwtAccessAuthGuard)
@@ -12,7 +13,7 @@ export class PlaylistController {
 
   @Get()
   @ApiOperation({ summary: 'index page dat api' })
-  indexPage(@Req() req: Request) {
-    this.playlistService.getAllPlaylist(req.cookies.accessToken);
+  indexPage(@Payload() payload: PayloadDTO) {
+    this.playlistService.getAllPlaylist(payload.accessToken);
   }
 }

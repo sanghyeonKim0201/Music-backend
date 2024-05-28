@@ -4,7 +4,7 @@ import { AuthService } from './auth.service';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthRepository } from './repository/auth.repository';
-import { GoogleStrategy } from 'src/utils/strategy/GoogleStrategy';
+import { GoogleStrategy } from 'src/common/utils/strategy/GoogleStrategy';
 
 @Module({
   imports: [

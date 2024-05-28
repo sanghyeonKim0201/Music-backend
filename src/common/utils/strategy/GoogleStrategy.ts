@@ -9,11 +9,24 @@ export class GoogleStrategy extends PassportStrategy(Strategy) {
       clientID: configService.get<string>('GOOGLE_CLIENT_ID'),
       clientSecret: configService.get<string>('GOOGLE_CLIENT_SECRET'),
       callbackURL: 'http://localhost:8080/api/auth/google/redirect',
-      scope: ['email', 'profile'],
-      accessType: 'offline',
-      prompt: 'consent',
+      scope: [
+        'email',
+        'profile',
+        'https://www.googleapis.com/auth/youtube.readonly',
+        'https://www.googleapis.com/auth/youtube',
+      ],
+      // response_type: 'code',
+      // access_type: 'offline',
+      // prompt: 'consent',
     });
   }
+
+  authorizationParams(): { [key: string]: string } {
+    return {
+      access_type: 'offline',
+    };
+  }
+
   async validate(accessToken: string, refreshToken: string, profile: Profile) {
     const { id, name, emails, photos } = profile;
 
@@ -29,6 +42,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy) {
       accessToken,
       refreshToken,
     };
+    console.log(refreshToken);
     return { info, token };
   }
 }
