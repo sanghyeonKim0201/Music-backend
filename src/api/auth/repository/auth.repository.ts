@@ -41,6 +41,14 @@ export class AuthRepository {
       },
     });
   }
+  async findGoogleTokenById(userId: string) {
+    const googleTokens = await this.prisma.google_token.findFirst({
+      where: {
+        user_id: userId,
+      },
+    });
+    return googleTokens;
+  }
   async updateGoogle(payload: {
     userId: string;
     accessToken?: string;

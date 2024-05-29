@@ -63,6 +63,12 @@ export class AuthService {
       throw new UnauthorizedException('refresh token error');
     }
     const payload = await this.authRepository.findById(userId);
+    // const googleAccessToken =
+    //   await this.authRepository.findGoogleTokenById(userId);
+    // const accessToken = this.generateAccessToken({
+    //   ...payload,
+    //   accessToken: googleAccessToken,
+    // });
     const accessToken = this.generateAccessToken(payload);
     return accessToken;
   }

@@ -1,12 +1,19 @@
-import { NestFactory } from '@nestjs/core';
+import { HttpAdapterHost, NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import * as cookieParser from 'cookie-parser';
-import { HttpExceptionFilter } from './common/utils/exception/exception.filter';
+// import { HttpExceptionFilter } from './common/utils/exception/exception.filter';
+import { PrismaClientExceptionFilter } from './common/utils/exception/prisma.filter';
+import { AllExceptionsFilter } from './common/utils/exception/allException.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.useGlobalFilters(new HttpExceptionFilter());
+  const { httpAdapter } = app.get(HttpAdapterHost);
+  app.useGlobalFilters(
+    new PrismaClientExceptionFilter(httpAdapter),
+    // new HttpExceptionFilter(),
+    new AllExceptionsFilter(),
+  );
   app.use(cookieParser());
   app.setGlobalPrefix('api');
   const config = new DocumentBuilder()

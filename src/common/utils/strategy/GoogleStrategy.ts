@@ -46,7 +46,6 @@ export class GoogleStrategy extends PassportStrategy(Strategy) {
     if (refreshToken) {
       token.refreshToken = refreshToken;
     }
-    console.log(token);
     return { info, token };
   }
 }
