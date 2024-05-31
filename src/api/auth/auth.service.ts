@@ -4,6 +4,7 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
 import { AccessTokenDTO } from './dto/token/access-token.dto';
+import { google, youtube_v3 } from 'googleapis';
 @Injectable()
 export class AuthService {
   constructor(
@@ -25,7 +26,7 @@ export class AuthService {
     userId: string;
     accessToken: string;
     refreshToken: string;
-  }) {
+  }): Promise<void> {
     await this.authRepository.upsertGoogle(payload);
   }
   generateAccessToken(accessTokenDTO: AccessTokenDTO): string {
@@ -72,12 +73,43 @@ export class AuthService {
     const accessToken = this.generateAccessToken(payload);
     return accessToken;
   }
-  async logout(refreshToken: string) {
+  async logout(refreshToken: string): Promise<void> {
     const verifyToken = this.jwtService.verify(refreshToken, {
       secret: this.configService.get('JWT_REFRESH_SECRET_KEY'),
     });
     const userId = verifyToken.userId;
     await this.authRepository.deleteGoogleToken(userId);
     await this.authRepository.deleteToken(userId);
+  }
+  async getYoutubeAPI(userId: string): Promise<youtube_v3.Youtube> {
+    const oauth2Client = new google.auth.OAuth2(
+      this.configService.get('GOOGLE_CLIENT_ID'),
+      this.configService.get('GOOGLE_CLIENT_SECRET'),
+      this.configService.get('GOOGLE_CLIENT_REDIRECT'),
+    );
+    const googleToken =
+      await this.authRepository.findGoogleTokenByUserId(userId);
+    oauth2Client.setCredentials({
+      access_token: googleToken.access_token,
+    });
+    const youtube = google.youtube({ version: 'v3', auth: oauth2Client });
+    return youtube;
+  }
+  async refreshGoogleAccessToken(userId: string) {
+    const tokens = await this.authRepository.findGoogleTokenByUserId(userId);
+
+    const oauth2Client = new google.auth.OAuth2(
+      this.configService.get('GOOGLE_CLIENT_ID'),
+      this.configService.get('GOOGLE_CLIENT_SECRET'),
+      this.configService.get('GOOGLE_CLIENT_REDIRECT'),
+    );
+    oauth2Client.setCredentials({
+      refresh_token: tokens.refresh_token,
+    });
+
+    const {
+      credentials: { access_token },
+    } = await oauth2Client.refreshAccessToken();
+    this.authRepository.updateGoogle(access_token, tokens.user_id);
   }
 }

@@ -5,14 +5,16 @@ import * as cookieParser from 'cookie-parser';
 // import { HttpExceptionFilter } from './common/utils/exception/exception.filter';
 import { PrismaClientExceptionFilter } from './common/utils/exception/prisma.filter';
 import { AllExceptionsFilter } from './common/utils/exception/allException.filter';
+import { AuthService } from './api/auth/auth.service';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const { httpAdapter } = app.get(HttpAdapterHost);
+  const authService = app.get(AuthService);
   app.useGlobalFilters(
     new PrismaClientExceptionFilter(httpAdapter),
     // new HttpExceptionFilter(),
-    new AllExceptionsFilter(),
+    new AllExceptionsFilter(authService),
   );
   app.use(cookieParser());
   app.setGlobalPrefix('api');

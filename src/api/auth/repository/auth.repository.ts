@@ -41,7 +41,7 @@ export class AuthRepository {
       },
     });
   }
-  async findGoogleTokenById(userId: string) {
+  async findGoogleTokenByUserId(userId: string) {
     const googleTokens = await this.prisma.google_token.findFirst({
       where: {
         user_id: userId,
@@ -49,24 +49,15 @@ export class AuthRepository {
     });
     return googleTokens;
   }
-  async updateGoogle(payload: {
-    userId: string;
-    accessToken?: string;
-    refreshToken?: string;
-  }) {
-    const { userId, accessToken, refreshToken } = payload;
-
-    const data: { access_token?: string; refresh_token?: string } = {};
-    if (accessToken) data.access_token = accessToken;
-    if (refreshToken) data.refresh_token = refreshToken;
-    if (Object.keys(data).length > 0) {
-      await this.prisma.google_token.update({
-        data,
-        where: {
-          user_id: userId,
-        },
-      });
-    }
+  async updateGoogle(accessToken: string, userId: string) {
+    await this.prisma.google_token.update({
+      data: {
+        access_token: accessToken,
+      },
+      where: {
+        user_id: userId,
+      },
+    });
   }
   async upsertGoogle(payload: {
     userId: string;
