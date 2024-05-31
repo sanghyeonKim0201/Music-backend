@@ -6,11 +6,9 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
-import { AuthService } from 'src/api/auth/auth.service';
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
-  constructor(private authService: AuthService) {}
   catch(exception: unknown, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
@@ -23,12 +21,9 @@ export class AllExceptionsFilter implements ExceptionFilter {
       exception instanceof HttpException
         ? exception.getResponse()
         : (exception as any).message || 'Internal server error';
-
     if (request.url.startsWith('/api/youtube') && status === 401) {
-      //@ts-expect-error type
-      const { id } = request.user;
-      this.authService.refreshGoogleAccessToken(id);
-      response.redirect(request.url);
+      response.cookie('originUrl', request.url, { httpOnly: true });
+      response.redirect('/api/auth/google/refresh');
     } else {
       response.status(status).json({
         statusCode: status,

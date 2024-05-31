@@ -20,6 +20,7 @@ export class YoutubeService {
     });
     return response.data;
   }
+
   async getPlaylistItems(userId: string, playlistId: string) {
     const youtube = await this.authService.getYoutubeAPI(userId);
     const response = await youtube.playlistItems.list({
@@ -27,5 +28,13 @@ export class YoutubeService {
       playlistId,
     });
     return response.data;
+  }
+  async search(userId: string) {
+    const response = (await this.authService.getYoutubeAPI(userId)).search.list(
+      {
+        part: ['snippet'],
+      },
+    );
+    return (await response).data;
   }
 }

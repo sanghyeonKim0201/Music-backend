@@ -3,6 +3,9 @@ import { Controller, Get, Req, Res, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Payload } from 'src/common/utils/decorator/payload.decorator';
+import { PayloadDTO } from 'src/common/models/payload.dto';
+import { JwtAccessAuthGuard } from 'src/common/utils/guard/jwtAccessAuthGuard';
 
 @Controller('auth')
 @ApiTags('Auth API')
@@ -61,6 +64,25 @@ export class AuthController {
     } finally {
       res.clearCookie('accessToken');
       res.clearCookie('refreshToken');
+      res.redirect('https://accounts.google.com/logout');
+    }
+  }
+  @Get('google/refresh')
+  @UseGuards(JwtAccessAuthGuard)
+  @ApiOperation({ summary: 'google token refresh' })
+  async googleRefresh(
+    @Payload() payload: PayloadDTO,
+    @Req() req: Request,
+    @Res() res: Response,
+  ) {
+    try {
+      const originUrl = req.cookies['originUrl'];
+      await this.authService.refreshGoogleAccessToken(payload.id);
+      if (originUrl) {
+        res.clearCookie('originUrl');
+        res.redirect(originUrl);
+      }
+    } catch (error) {
       res.redirect('https://accounts.google.com/logout');
     }
   }

@@ -34,7 +34,7 @@ export class YoutubeController {
     return await this.youtubeService.getPlayLists(payload.id);
   }
 
-  @Get('playlist-items/:playlistId')
+  @Get('playlists/items/:playlistId')
   @ApiOperation({ summary: 'get playlist items' })
   async itmes(
     @Payload() payload: PayloadDTO,
@@ -42,5 +42,11 @@ export class YoutubeController {
   ) {
     // PLBJFwQTTuErTJJoLzfsGviKY8LQFyYGOH
     return await this.youtubeService.getPlaylistItems(payload.id, playlistId);
+  }
+
+  @Get('video')
+  @ApiOperation({ summary: 'get search video data' })
+  async search(@Payload() payload: PayloadDTO) {
+    return await this.youtubeService.search(payload.id);
   }
 }
