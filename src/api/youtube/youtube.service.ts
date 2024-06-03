@@ -37,4 +37,12 @@ export class YoutubeService {
     );
     return (await response).data;
   }
+  async likeVideo(userId: string) {
+    const youtube = await this.authService.getYoutubeAPI(userId);
+    const response = await youtube.videos.list({
+      part: ['snippet'],
+      myRating: 'like',
+    });
+    return response.data;
+  }
 }
