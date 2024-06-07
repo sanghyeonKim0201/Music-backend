@@ -9,6 +9,11 @@ import { AllExceptionsFilter } from './common/utils/exception/allException.filte
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const { httpAdapter } = app.get(HttpAdapterHost);
+  app.enableCors({
+    origin: true,
+    credentials: true,
+    // exposedHeaders: ['Authorization'],
+  });
   // const authService = app.get(AuthService);
   app.useGlobalFilters(
     new PrismaClientExceptionFilter(httpAdapter),

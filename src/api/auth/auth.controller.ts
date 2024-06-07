@@ -38,6 +38,7 @@ export class AuthController {
       //@ts-expect-error type에러
       ...req.user.token,
     });
+    // res.setHeader('Authorization', 'Bearer ' + accessToken);
     res.cookie('accessToken', accessToken, { httpOnly: true });
     res.cookie('refreshToken', refreshToken, { httpOnly: true });
     res.redirect('http://localhost:3000/');
@@ -49,6 +50,7 @@ export class AuthController {
       const newAccessToken = await this.authService.refrehsValidate(
         req.cookies.refreshToken,
       );
+      // res.setHeader('Authorization', 'Bearer ' + newAccessToken);
       res.cookie('accessToken', newAccessToken, { httpOnly: true });
       res.send();
     } catch (error) {
@@ -62,6 +64,7 @@ export class AuthController {
       await this.authService.logout(req.cookies.refreshToken);
     } catch (error) {
     } finally {
+      // res.removeHeader('Authorization');
       res.clearCookie('accessToken');
       res.clearCookie('refreshToken');
       res.redirect('https://accounts.google.com/logout');

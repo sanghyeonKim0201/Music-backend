@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
+import { Request } from 'express';
 
 @Injectable()
 export class JwtAccessAuthGuard implements CanActivate {
@@ -15,7 +16,7 @@ export class JwtAccessAuthGuard implements CanActivate {
   ) {}
   async canActivate(context: ExecutionContext): Promise<any> {
     try {
-      const request = context.switchToHttp().getRequest();
+      const request = context.switchToHttp().getRequest<Request>();
       const accessToken = request.cookies['accessToken'];
       const user = await this.jwtService.verify(accessToken, {
         secret: this.configService.get<string>('JWT_ACCESS_SECRET_KEY'),
