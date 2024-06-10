@@ -41,7 +41,7 @@ export class AuthController {
     // res.setHeader('Authorization', 'Bearer ' + accessToken);
     res.cookie('accessToken', accessToken, { httpOnly: true });
     res.cookie('refreshToken', refreshToken, { httpOnly: true });
-    res.redirect('http://localhost:3000/');
+    res.redirect('http://localhost:3000/main');
   }
   @Get('/refresh')
   @ApiOperation({ summary: 'accessToken refresh' })
