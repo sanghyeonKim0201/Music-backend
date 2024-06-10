@@ -29,15 +29,26 @@ export class YoutubeService {
     });
     return response.data;
   }
-  async search(userId: string) {
-    const response = (await this.authService.getYoutubeAPI(userId)).search.list(
-      {
-        part: ['snippet'],
-      },
-    );
-    return (await response).data;
+
+  async getMostVideo(userId: string) {
+    const youtube = await this.authService.getYoutubeAPI(userId);
+
+    // const category = await youtube.videoCategories.list({
+    //   part: ['snippet'],
+    //   regionCode: 'KR',
+    // });
+
+    // return category.data;
+    const response = await youtube.videos.list({
+      part: ['snippet'],
+      chart: 'mostPopular',
+      videoCategoryId: '10',
+      maxResults: 50,
+      regionCode: 'KR',
+    });
+    return response.data;
   }
-  async likeVideo(userId: string) {
+  async getLikeVideo(userId: string) {
     const youtube = await this.authService.getYoutubeAPI(userId);
     const response = await youtube.videos.list({
       part: ['snippet'],

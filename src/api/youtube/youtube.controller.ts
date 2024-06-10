@@ -47,6 +47,6 @@ export class YoutubeController {
   @Get('video')
   @ApiOperation({ summary: 'get search video data' })
   async search(@Payload() payload: PayloadDTO) {
-    return await this.youtubeService.search(payload.id);
+    return await this.youtubeService.getMostVideo(payload.id);
   }
 }
