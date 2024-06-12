@@ -24,10 +24,6 @@ import { YoutubeService } from './youtube.service';
 export class YoutubeController {
   constructor(private readonly youtubeService: YoutubeService) {}
 
-  // @Get()
-  // @ApiOperation({ summary: 'index page dat api' })
-  // async indexPage(@Payload() payload: PayloadDTO) {}
-
   @Get('playlists')
   @ApiOperation({ summary: 'get playlists' })
   async playlists(@Payload() payload: PayloadDTO) {
@@ -44,9 +40,14 @@ export class YoutubeController {
     return await this.youtubeService.getPlaylistItems(payload.id, playlistId);
   }
 
-  @Get('video')
+  @Get('videos')
   @ApiOperation({ summary: 'get search video data' })
   async search(@Payload() payload: PayloadDTO) {
     return await this.youtubeService.getMostVideo(payload.id);
+  }
+  @Get('likes')
+  @ApiOperation({ summary: 'get like video data' })
+  async likeVideos(@Payload() payload: PayloadDTO) {
+    return await this.youtubeService.getLikeVideo(payload.id);
   }
 }

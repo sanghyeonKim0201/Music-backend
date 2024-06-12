@@ -53,6 +53,7 @@ export class YoutubeService {
     const response = await youtube.videos.list({
       part: ['snippet'],
       myRating: 'like',
+      maxResults: 50,
     });
     return response.data;
   }
