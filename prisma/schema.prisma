@@ -15,15 +15,15 @@ model user {
   picture      String        @db.Text
   google_token google_token?
   jwt_token    jwt_token?
-  play_list    play_list[]
+  play_list    playlist[]
 }
 
-model play_list {
+model playlist {
   id             Int              @id @default(autoincrement())
   name           String
   user_id        String
   user           user             @relation(fields: [user_id], references: [id])
-  play_list_data play_list_item[]
+  play_list_data playlist_item[]
 
   @@index([user_id], map: "play_list_user_id_fkey")
 }
@@ -32,7 +32,7 @@ model music {
   id             Int              @id @default(autoincrement())
   name           String
   music_category music_category[]
-  play_list_data play_list_item[]
+  play_list_data playlist_item[]
 }
 
 model category {
@@ -52,12 +52,12 @@ model music_category {
   @@index([music_id], map: "music_category_music_id_fkey")
 }
 
-model play_list_item {
+model playlist_item {
   id           Int       @id @default(autoincrement())
   play_list_id Int
   music_id     Int
   music        music     @relation(fields: [music_id], references: [id])
-  play_list    play_list @relation(fields: [play_list_id], references: [id])
+  play_list    playlist @relation(fields: [play_list_id], references: [id])
 
   @@index([music_id], map: "play_list_item_music_id_fkey")
   @@index([play_list_id], map: "play_list_item_play_list_id_fkey")
