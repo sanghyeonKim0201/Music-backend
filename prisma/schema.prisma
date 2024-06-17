@@ -64,13 +64,15 @@ model playlist_item {
 }
 
 model jwt_token {
-  user_id       String @id @unique
+  id Int @id @default(autoincrement())
+  user_id       String  @unique
   refresh_token String @db.MediumText
   user          user   @relation(fields: [user_id], references: [id])
 }
 
 model google_token {
-  user_id       String @id
+  id Int @id @default(autoincrement())
+  user_id       String @unique
   refresh_token String @db.MediumText
   access_token  String @db.MediumText
   user          user   @relation(fields: [user_id], references: [id])
