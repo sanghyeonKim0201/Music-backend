@@ -132,10 +132,23 @@ export class YoutubeService {
     });
     return response.data;
   }
-  async insertPlaylist(userId: string) {
+  async insertPlaylist(
+    userId: string,
+    data: { title: string; description: string; status: string },
+  ) {
+    const { title, description, status } = data;
     const youtube = await this.authService.getYoutubeAPI(userId);
     const response = await youtube.playlists.insert({
-      part: ['snippet'],
+      part: ['snippet', 'status'],
+      requestBody: {
+        snippet: {
+          title,
+          description,
+        },
+        status: {
+          privacyStatus: status,
+        },
+      },
     });
     return response.data;
   }

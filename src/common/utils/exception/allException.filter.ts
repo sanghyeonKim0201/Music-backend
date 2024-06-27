@@ -4,6 +4,7 @@ import {
   ArgumentsHost,
   HttpException,
   HttpStatus,
+  Logger,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 
@@ -25,6 +26,9 @@ export class AllExceptionsFilter implements ExceptionFilter {
       response.cookie('originUrl', request.url, { httpOnly: true });
       response.redirect('/api/auth/google/refresh');
     } else {
+      Logger.error(`status : ${status}`);
+      Logger.error(`path : ${request.url}`);
+      Logger.error(`message : ${message.message ?? message}`);
       response.status(status).json({
         statusCode: status,
         timestamp: new Date().toISOString(),

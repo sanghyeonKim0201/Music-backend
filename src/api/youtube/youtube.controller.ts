@@ -1,4 +1,12 @@
-import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { JwtAccessAuthGuard } from 'src/common/utils/guard/jwtAccessAuthGuard';
 import {
   ApiOperation,
@@ -8,6 +16,7 @@ import {
 import { Payload } from 'src/common/utils/decorator/payload.decorator';
 import { PayloadDTO } from 'src/common/models/payload.dto';
 import { YoutubeService } from './youtube.service';
+import { PostPlaylistDTO } from './dto/postPlaylist.dto';
 
 @Controller('youtube')
 @UseGuards(JwtAccessAuthGuard)
@@ -31,6 +40,15 @@ export class YoutubeController {
     @Param('playlistId') playlistId: string,
   ) {
     return await this.youtubeService.getPlaylist(playload.id, playlistId);
+  }
+
+  @Post('/playlist')
+  @ApiOperation({ summary: 'post playlist' })
+  async postPlaylist(
+    @Payload() payload: PayloadDTO,
+    @Body() body: PostPlaylistDTO,
+  ) {
+    return await this.youtubeService.insertPlaylist(payload.id, body);
   }
 
   @Get('playlist/item/:playlistId')
